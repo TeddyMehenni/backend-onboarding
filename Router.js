@@ -5,10 +5,10 @@ const firebase = require("./Firebase.js")
 module.exports = router;
 
 router
-    .get("/credentials", async (req, res) => {
-        var credentials = await firebase.getCredentials();
-        console.log(credentials)
-        // res.json(firebase.getCredentials())
+    .get("/credentials", (req, res) => {
+        firebase.getCredentials().then((data) => {
+            res.json(data)
+        })
     })
 
 router.post("/addcredentials", (req, res) => {
