@@ -1,0 +1,26 @@
+{
+  "name": "backend-onboarding",
+  "version": "1.0.0",
+  "description": "Exercises to train and prepare new backend wizard",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon Server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TeddyMehenni/backend-onboarding.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TeddyMehenni/backend-onboarding/issues"
+  },
+  "homepage": "https://github.com/TeddyMehenni/backend-onboarding#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "firebase-admin": "^9.5.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.7"
+  }
+}
