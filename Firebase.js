@@ -1,5 +1,5 @@
-var admin = require("firebase-admin");
-var https = require("https");
+const admin = require("firebase-admin");
+const https = require("https");
 const fs = require("fs");
 
 var serviceAccount = require("./Admin-sdk-credential.json");
@@ -10,9 +10,9 @@ admin.initializeApp({
 var db = admin.database();
 
 
-exports.getCredentials = async function getCredentials() {
+ async function getCredentials() {
     var data = {};
-    ref = db.ref("Credential Collection/");
+    const ref = db.ref("Credential Collection/");
     await ref.once("value", (snapshot) => {
         data = snapshot.val();
     }, function (errorObject) {
@@ -21,9 +21,13 @@ exports.getCredentials = async function getCredentials() {
     return data
 }
 
-exports.addCredentials = function addCredentials() {
-    ref = db.ref("Credential Collection/");
-    var file = fs.readFileSync("./Admin-sdk-credential.json");
-    var cred = JSON.parse(file)
-    ref.set(cred)
+async function addCredentials() {
+    const ref = db.ref("credentials");
+    const file = fs.readFile("./Admin-sdk-credential.json");
+    const cred = JSON.parse(file)
+    ref.push(cred)
+    return(cred)
 }
+
+exports.addCredentials = addCredentials;
+exports.getCredentials = getCredentials;
