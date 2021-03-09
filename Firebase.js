@@ -1,6 +1,6 @@
 const admin = require("firebase-admin");
 const https = require("https");
-const fs = require("fs");
+const fs = require("fs/promises");
 
 var serviceAccount = require("./Admin-sdk-credential.json");
 admin.initializeApp({
@@ -12,22 +12,48 @@ var db = admin.database();
 
  async function getCredentials() {
     var data = {};
-    const ref = db.ref("Credential Collection/");
-    await ref.once("value", (snapshot) => {
-        data = snapshot.val();
-    }, function (errorObject) {
+    const ref = db.ref("credentials/");
+    try {
+        await ref.once("value", (snapshot) => {
+            data = snapshot.val();
+        })
+    } catch (e) {
         console.log("The read failed: " + errorObject.code);
-    });
+        return null
+    }
+    return data
+}
+
+async function getCredentialsId(id) {
+    var data = {};
+    console.log(id)
+    const ref = db.ref("credentials/" + id);
+    try {
+        await ref.once("value", (snapshot) => {
+            data = snapshot.val();
+        })
+    } catch (e) {
+        console.log("The read failed: " + errorObject.code);
+        return null
+    }
     return data
 }
 
 async function addCredentials() {
     const ref = db.ref("credentials");
-    const file = fs.readFile("./Admin-sdk-credential.json");
+    const file = await fs.readFile("./Admin-sdk-credential.json");
     const cred = JSON.parse(file)
     ref.push(cred)
     return(cred)
 }
 
+async function deleteCredential(id) {
+    const ref = db.ref("credentials/" + id);
+    await ref.set({})
+    return ("Deleted")
+}
+
 exports.addCredentials = addCredentials;
 exports.getCredentials = getCredentials;
+exports.getCredentialsId = getCredentialsId;
+exports.deleteCredential = deleteCredential;
