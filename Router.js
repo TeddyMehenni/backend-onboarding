@@ -67,3 +67,18 @@ router.delete("/credentials/delete/:id", (req,res) => {
         res.status(403)
     }
 })
+
+router.put("/credentials/update/:id", (req, res) => {
+    try {
+        firebase.updateCredential(req.params.id, req.body).then((data) => {
+            if (data) {
+                res.status(200)
+                res.json(data)
+            }else {
+                res.status(403)
+            }
+        })
+    } catch (e) {
+        res.status(403)
+    }
+})

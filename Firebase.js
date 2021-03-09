@@ -53,7 +53,19 @@ async function deleteCredential(id) {
     return ("Deleted")
 }
 
+async function updateCredential(id, body) {
+    const ref = db.ref("credentials/" + id);
+    try {
+        await ref.update(body)
+        return(body)
+    } catch (e) {
+        console.log("The put failed: " + errorObject.code);
+        return ("failed")
+    }
+}
+
 exports.addCredentials = addCredentials;
 exports.getCredentials = getCredentials;
 exports.getCredentialsId = getCredentialsId;
 exports.deleteCredential = deleteCredential;
+exports.updateCredential = updateCredential;
