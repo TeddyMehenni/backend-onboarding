@@ -1,31 +1,40 @@
 const express = require("express");
 const router = express.Router();
 const firebase = require("./Firebase.js")
+const func = require("./Function.js")
 
-module.exports = router;
-
-
-
-router.use("/credentials", (req, res, next) => {
-    console.log('Request URL:', req.originalUrl);
-    next();
-})
-
-router.get("/credentials/read", (req, res) => {
-    firebase.getCredentials().then((data) => {
-        if (data) {
-            res.status(200)
-            res.json(data)
-        } else {
-            res.status(403);
-            res.json(null)
+router.get("/read/:id?", (req, res) => {
+    try {
+        if (req.params.id) {
+            firebase.getCredentialsId(req.params.id).then((cred) => {
+                if (cred) {
+                    res.status(200)
+                    res.json(cred)
+                } else {
+                    res.sendStatus(403);
+                }
+            })
         }
-    })
+        else {
+            firebase.getCredentials().then((data) => {
+                if (data) {
+                    res.status(200)
+                    res.json(data)
+                } else {
+                    res.status(404);
+                    res.json(null)
+                }
+            })
+        }
+    } catch (e) {
+        res.sendStatus(403)
+    }
 })
 
-router.get("/credentials/read/:id", (req, res) => {
+router.post("/create", (req, res) => {
     try {
-        firebase.getCredentialsId(req.params.id).then((cred) => {
+        const yolo = fun.validate(req.body)
+        firebase.addCredentials(req.body).then((cred) => {
             if (cred) {
                 res.status(200)
                 res.json(cred)
@@ -38,22 +47,7 @@ router.get("/credentials/read/:id", (req, res) => {
     }
 })
 
-router.post("/credentials/create", (req, res) => {
-    try {
-        firebase.addCredentials().then((cred) => {
-            if (cred) {
-                res.status(200)
-                res.json(cred)
-            } else {
-                res.status(403);
-            }
-        })
-    } catch (e) {
-        res.status(403)
-    }
-})
-
-router.delete("/credentials/delete/:id", (req,res) => {
+router.delete("/delete/:id", (req,res) => {
     try {
         firebase.deleteCredential(req.params.id).then((data) => {
             if (data) {
@@ -68,17 +62,20 @@ router.delete("/credentials/delete/:id", (req,res) => {
     }
 })
 
-router.put("/credentials/update/:id", (req, res) => {
+router.put("/update/:id", (req, res) => {
     try {
         firebase.updateCredential(req.params.id, req.body).then((data) => {
             if (data) {
                 res.status(200)
                 res.json(data)
-            }else {
+            } else {
                 res.status(403)
             }
         })
     } catch (e) {
-        res.status(403)
+        console.error(e)
+        res.sendStatus(403)
     }
 })
+router.use("/credentials", router)
+module.exports = router;

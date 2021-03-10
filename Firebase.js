@@ -1,6 +1,6 @@
 const admin = require("firebase-admin");
 const https = require("https");
-const fs = require("fs/promises");
+const fs = require("fs");
 
 var serviceAccount = require("./Admin-sdk-credential.json");
 admin.initializeApp({
@@ -10,62 +10,57 @@ admin.initializeApp({
 var db = admin.database();
 
 
- async function getCredentials() {
+async function getCredentials() {
     var data = {};
     const ref = db.ref("credentials/");
     try {
-        await ref.once("value", (snapshot) => {
-            data = snapshot.val();
-        })
+        const data = await ref.once("value").then(snp => snp.val())
+        return data
     } catch (e) {
         console.log("The read failed: " + errorObject.code);
         return null
     }
-    return data
 }
 
-async function getCredentialsId(id) {
-    var data = {};
-    console.log(id)
-    const ref = db.ref("credentials/" + id);
-    try {
-        await ref.once("value", (snapshot) => {
-            data = snapshot.val();
-        })
-    } catch (e) {
-        console.log("The read failed: " + errorObject.code);
-        return null
-    }
-    return data
-}
-
-async function addCredentials() {
+async function getCredentialsId(value) {
     const ref = db.ref("credentials");
-    const file = await fs.readFile("./Admin-sdk-credential.json");
-    const cred = JSON.parse(file)
-    ref.push(cred)
-    return(cred)
+    try {
+        const data = await ref.orderByChild('name').equalTo(value)
+        return data.once("value").then(snp => snp.val())
+    } catch (e) {
+        console.log("The read failed: " + e.code);
+        return null
+    }
 }
 
-async function deleteCredential(id) {
-    const ref = db.ref("credentials/" + id);
-    await ref.set({})
-    return ("Deleted")
+async function addCredentials(body) {
+    const ref = db.ref("credentials");
+    await ref.push(body)
+    return(body)
+}
+
+async function deleteCredential(value) {
+    const ref = db.ref("credentials");
+    try {
+        const target = await ref.orderByChild('name').equalTo(value)
+        await target.set({})
+        return ("Deleted")
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 async function updateCredential(id, body) {
+    // throw Error('INVALID ID')
     const ref = db.ref("credentials/" + id);
-    try {
-        await ref.update(body)
-        return(body)
-    } catch (e) {
-        console.log("The put failed: " + errorObject.code);
-        return ("failed")
-    }
+    await ref.update(body)
+    return(body)
 }
 
-exports.addCredentials = addCredentials;
-exports.getCredentials = getCredentials;
-exports.getCredentialsId = getCredentialsId;
-exports.deleteCredential = deleteCredential;
-exports.updateCredential = updateCredential;
+module.exports = {
+    getCredentials,
+    addCredentials,
+    getCredentialsId,
+    updateCredential,
+    deleteCredential
+}
